@@ -1,4 +1,9 @@
 {
     "link": "https://www.nike.com/bg/t/air-force-1-mid-07-shoe-pj5Mqp/CW2289-111",
-    "size": "45.5"
+    "size": "45.5",
+    "notifiers": [{
+        "kind": "discord",
+        "token": "NDczMTIwMTQ0NzgxMjEzNjk2.GZnDT9.I2ucBdPjqy1zOguhCAg9bDaC0bH83l9Z-O2m3E",
+        "user_id": "356819274691510293"
+    }]
 }

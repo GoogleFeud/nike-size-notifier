@@ -1,32 +1,24 @@
 
 import Puppeteer, { Page } from "puppeteer";
 import { extractShoeInfo, ShoeInfo } from "./extractSizes";
-import { initOptions } from "./options";
-
-interface Settings {
-    size: string,
-    link: string,
-    // In seconds
-    interval: number,
-    discord?: {
-        id: string,
-        token: string
-    }
-}
+import { notify } from "./notifiers";
+import { initOptions, Settings } from "./options";
 
 async function check(options: Settings, page: Page, lastInfo?: ShoeInfo) {
     const shoeInfo = await extractShoeInfo(page, options.link);
     if (lastInfo) {
         if (lastInfo.sizes[options.size] && !shoeInfo.sizes[options.size]) {
-            console.log("Your size got taken!");
+            notify(options.notifiersInstances, shoeInfo, "No longer available!");
         } else if (!lastInfo.sizes[options.size] && shoeInfo.sizes[options.size]) {
-            console.log("Your size has restocked!");
+            notify(options.notifiersInstances, shoeInfo, "Is now available!");
         } else {
-            console.log("No new updates!");
+            if (options.logOnCheck) notify(options.notifiersInstances, shoeInfo, "No new updates.");
         }
     } else {
         if (shoeInfo.sizes[options.size]) {
-            console.log("They have your size! Go buy it now.");
+            notify(options.notifiersInstances, shoeInfo, "Is available!");
+        } else {
+            notify(options.notifiersInstances, shoeInfo, "Is not available.");
         }
     }
     setTimeout(() => {
@@ -35,10 +27,9 @@ async function check(options: Settings, page: Page, lastInfo?: ShoeInfo) {
 }
 
 (async () => {
-    const options = initOptions();
-    console.log(options);
+    const options = await initOptions();
     if (!options.link || !options.size) return;
-    const browser = await Puppeteer.launch();
+    const browser = await Puppeteer.launch({headless: !options.head});
     const page = await browser.newPage();
     check(options, page);
 })();
